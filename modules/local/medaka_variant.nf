@@ -23,10 +23,16 @@ process MEDAKA_VARIANT {
     output_dir = "${meta.id}"
     output_vcf = output_dir+"/round_1.vcf"
     """
+    # horrible fix for some channel issue with the refs
+    rm *.fasta
+    ref_id=\$(echo $input | awk -F "_" '{ print \$2 }')
+    find ${workflow.projectDir}/work -name "*\${ref_id}*.fasta" -print0 | xargs -0 -I {} cp {} .
+    find ${workflow.projectDir}/work -name "*\${ref_id}*.fasta.fai" -print0 | xargs -0 -I {} cp {} .
+    correct_ref=\$(ls *.fasta | head -1)
 
     medaka_variant \\
         -d \\
-        -f $fasta \\
+        -f \$correct_ref \\
         -i $input \\
         -o $output_dir \\
         -t $task.cpus \\
