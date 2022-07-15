@@ -22,6 +22,9 @@ process SNIFFLES {
         -m  $input \
         -v ${meta.id}_sniffles.vcf \
         -t $task.cpus
+    # sort vcf by index to stop tabix crying
+    cat ${meta.id}_sniffles.vcf | awk '\$1 ~ /^#/ {print \$0;next} {print \$0 | "sort -k1,1 -k2,2n"}' > ${meta.id}_sniffles_sorted.vcf
+    mv ${meta.id}_sniffles_sorted.vcf ${meta.id}_sniffles.vcf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
